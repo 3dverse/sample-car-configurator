@@ -1,0 +1,368 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width,initial-scale=1.0" name="viewport" />
+    <title>3dverse Car Configurator</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <!-- CANVAS -->
+      <canvas
+        id="display-canvas"
+        class="display-canvas"
+        oncontextmenu="event.preventDefault()"
+      ></canvas>
+
+      <!-- SCENE LOADER -->
+      <div id="scene-loader" class="scene-loader">
+        <div class="loading-spinner" role="status"></div>
+        <div id="info-span" class="info-span">Loading...</div>
+      </div>
+
+      <!-- TIMEOUT OVERLAY -->
+      <div id="timeout-overlay" class="timeout-overlay">
+        <div class="inactive-message">
+          <h2>Are you still there?</h2>
+          <button onclick="TimeoutOverlay.stayConnected()">Yes</button>
+        </div>
+        <div class="disconnected-message">
+          <h2>You were disconnected.</h2>
+          <button onclick="window.location.reload()">Reconnect</button>
+        </div>
+      </div>
+
+      <div class="main-ui-layout">
+        <div class="top-row">
+          <!-- CAR HEADING CONTAINER -->
+          <div id="car-heading" class="car-heading"></div>
+          <!-- CAR HEADING TEMPLATE -->
+          <script id="car-heading-template" type="text/x-handlebars">
+            <h2 class="car-name">
+              <span>
+                <span class="highlighted-word">{{firstWord}}</span>
+                <span>{{afterFirstWord}}</span>
+              </span>
+              <div
+                class="switch-car-button"
+                onclick="UI.CarSelection.nextCar()"
+              >
+                <svg
+                  width="100%"
+                  height="100%"
+                  viewBox="0 0 27 47"
+                  fill="none"
+                >
+                  <path d="M2 2L23 23.5L2 45" />
+                </svg>
+              </div>
+            </h2>
+
+            <a
+              class="credit"
+              href="{{credits.url}}"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span>Model by {{credits.author}}</span>
+              <img
+                src="./img/{{credits.image}}"
+                class="credit-logo"
+                alt="{{credits.author}}"
+              />
+            </a>
+          </script>
+
+          <div class="ui-right">
+            <!-- SETTINGS PANEL -->
+            <div id="settings-panel" class="settings-panel">
+              <label class="settings-line rgb-gradient-setting">
+                <h4>RGB Gradient</h4>
+                <div class="switch-container">
+                  <input
+                    id="rgb-gradient"
+                    type="checkbox"
+                    onclick="UI.RGBGradientViewOption.toggleRgbGradientOn()"
+                  />
+                  <div class="switch-display"></div>
+                </div>
+              </label>
+              <div class="luminosity-setting">
+                <label class="settings-line">
+                  <h4>Luminosity</h4>
+                  <h4 id="luminosity-value"></h4>
+                </label>
+                <input
+                  id="luminosity-slider"
+                  oninput="UI.LuminosityViewOption.changeUserCameraLuminosity(
+              { target: this }
+            )"
+                  type="range"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                />
+                <small>Only your render is affected by this setting.</small>
+              </div>
+            </div>
+
+            <div class="material-and-color">
+              <!-- COLORS SELECTION CONTAINER -->
+              <div id="colors-selection" class="colors-selection"></div>
+              <!-- COLOR SELECTION TEMPLATE -->
+              <script id="colors-selection-template" type="text/x-handlebars">
+                {{#each colors as | color |}}
+                  <div
+                    style="
+                      --color: {{color.cssColor}};
+                      {{#if color.useDarkAccent}}
+                        --border-color: var(--dark-gray);
+                        --check-brightness: 0;
+                      {{/if}}
+                    "
+                    onclick="UI.CarPaint.changeSelectedColor(
+                      '{{color.cssColor}}'
+                    )"
+                    class="color {{#if color.isActive}} active-color {{/if}}"
+                  >
+                  <img
+                    src="./img/white-check.png"
+                    class="check-icon"
+                    alt=""
+                  />
+                </div>
+                {{/each}}
+              </script>
+
+              <!-- MATERIALS SELECTION -->
+              <div id="materials-selection" class="material-selection">
+                <div
+                  class="material-icon"
+                  onclick="UI.CarPaint.changeSelectedMaterial(0)"
+                >
+                  <svg
+                    width="50%"
+                    height="50%"
+                    viewBox="0 0 130 130"
+                    fill="none"
+                  >
+                    <circle
+                      cx="65"
+                      cy="65"
+                      r="57.5"
+                      class="stroke"
+                      stroke-width="15"
+                    />
+                  </svg>
+                </div>
+                <div
+                  class="material-icon"
+                  onclick="UI.CarPaint.changeSelectedMaterial(1)"
+                >
+                  <svg
+                    width="50%"
+                    height="50%"
+                    viewBox="0 0 130 130"
+                    fill="none"
+                  >
+                    <circle
+                      cx="65"
+                      cy="65"
+                      r="57.5"
+                      class="stroke"
+                      stroke-width="15"
+                    />
+                    <path
+                      d="M65 130C82.2391 130 98.7721 123.152 110.962 110.962C123.152 98.7721 130 82.2391 130 65C130 47.7609 123.152 31.2279 110.962 19.0381C98.7721 6.8482 82.2391 5.15332e-07 65 -2.84124e-06L65 65L65 130Z"
+                      class="fill"
+                    />
+                  </svg>
+                </div>
+                <div
+                  class="material-icon"
+                  onclick="UI.CarPaint.changeSelectedMaterial(2)"
+                >
+                  <svg
+                    width="50%"
+                    height="50%"
+                    viewBox="0 0 130 130"
+                    fill="none"
+                  >
+                    <circle
+                      cx="65"
+                      cy="65"
+                      r="61"
+                      class="stroke"
+                      stroke-width="8"
+                    />
+                    <circle
+                      cx="65"
+                      cy="65"
+                      r="65"
+                      transform="rotate(90 65 65)"
+                      class="fill"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lower-content">
+          <div class="bottom-bar">
+            <!-- CUBEMAP SELECTION CONTAINER -->
+            <div id="cubemap-selection" class="cubemap-selection"></div>
+            <!-- CUBEMAP SELECTION TEMPLATE -->
+            <script id="cubemap-selection-template" type="text/x-handlebars">
+              {{#each cubemaps as | cubemap |}}
+                <div
+                  class="cubemap"
+                  onclick="UI.Environment.changeCubemap({{@index}})"
+                >
+                  <div
+                    class="cubemap-check"
+                  >
+                    <img
+                      src="./img/orange-check.png"
+                      class="cubemap-check-icon"
+                      alt=""
+                    />
+                  </div>
+                  <img
+                    src="{{cubemap.previewSrc}}"
+                    alt="{{cubemap.displayName}}"
+                    class="cubemap-bg"
+                  />
+                </div>
+              {{/each}}
+            </script>
+
+            <!-- VIEW OPTIONS -->
+            <div class="view-options">
+              <div
+                class="option-button"
+                onclick="UI.LightsViewOption.toggleLightsOn()"
+              >
+                <svg
+                  id="light-toggle"
+                  height="60%"
+                  width="60%"
+                  viewBox="0 0 128 92"
+                  fill="none"
+                >
+                  <path
+                    d="M73 14.5C64.6728 -11.6705 29.4999 3.66658 13.4999 16.9999C-4.49999 31.9998 -3.99996 55.707 13.4999 71.9999C28 85.5 61 104.5 73 80.5C77.9498 70.6005 76.5002 25.5 73 14.5Z"
+                    class="toggle-button-fill"
+                  />
+                  <path
+                    d="M91 21H123"
+                    class="toggle-button-stroke"
+                    stroke-width="10"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M91 46H123"
+                    class="toggle-button-stroke"
+                    stroke-width="10"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M91 72H123"
+                    class="toggle-button-stroke"
+                    stroke-width="10"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+
+              <div
+                class="option-button"
+                onclick="UI.RotationViewOption.toggleRotationOn()"
+              >
+                <svg
+                  id="rotate-toggle"
+                  class="toggle-button-fill"
+                  height="55%"
+                  width="55%"
+                  viewBox="0 0 214.367 214.367"
+                >
+                  <path
+                    d="M202.403,95.22c0,46.312-33.237,85.002-77.109,93.484v25.663l-69.76-40l69.76-40v23.494
+            c27.176-7.87,47.109-32.964,47.109-62.642c0-35.962-29.258-65.22-65.22-65.22s-65.22,29.258-65.22,65.22
+            c0,9.686,2.068,19.001,6.148,27.688l-27.154,12.754c-5.968-12.707-8.994-26.313-8.994-40.441C11.964,42.716,54.68,0,107.184,0
+            S202.403,42.716,202.403,95.22z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-3dverse">
+            <!-- SHARE PROMPT -->
+            <div id="share-prompt" class="share-prompt"></div>
+            <!-- SHARE PROMPT TEMPLATE -->
+            <script id="share-prompt-template" type="text/x-handlebars">
+              <h3 class="title">Share or join with your phone</h3>
+              <button
+                class="copy-link"
+                onclick="navigator.clipboard.writeText('{{url}}')"
+              ></button>
+              <img
+                class="qr-code"
+                alt="qr code"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data={{urlEncoded}}"
+              />
+              <a
+                href="https://3dverse.com"
+                target="_blank"
+                rel="noreferrer"
+                title="Built with 3dverse"
+                class="built-with-3dverse"
+              >
+                <svg class="logo-3dverse" fill="none" viewBox="0 0 40 40">
+                  <path
+                    fill="#523B04"
+                    d="m5.288 19.753 8.896 8.698v11.548l-8.901-8.705.005-11.541ZM33.995 19.753l-8.896 8.698v11.548L34 31.294l-.005-11.541Z"
+                  ></path>
+                  <path
+                    fill="url(#3dverse-rocket_svg__logo-rocket-gradient)"
+                    fill-rule="evenodd"
+                    d="m29.33 13.272 4.875 6.475v11.547L24.99 19.747v5.101H14.496v-5.101L5.283 31.294V19.753l4.875-6.473V9.174C10.159 3.058 14.951 0 19.745 0c2.362 0 4.724.743 6.512 2.228 1.84 1.529 3.073 3.844 3.073 6.946v4.098Zm-9.586-7.517c1.51 0 3.02 1.08 3.02 3.24v4.28l-6.04.002V8.995c0-1.592.82-2.597 1.856-3.015.37-.15.767-.225 1.164-.225Zm-3.02 7.522v.003h6.04-6.04v-.003Zm3.02 16.702-5.247-5.13H24.99l-5.247 5.13Z"
+                    clip-rule="evenodd"
+                  ></path>
+                  <defs>
+                    <linearGradient
+                      id="3dverse-rocket_svg__logo-rocket-gradient"
+                      x1="12.075"
+                      x2="31.321"
+                      y1="1.887"
+                      y2="32.453"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="#f0c732"></stop>
+                      <stop offset="1" stop-color="var(--color-accent, #f0c732)"></stop>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span>Built with <span class="threedee">3d</span>verse</span>
+              </div>
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <!-- SDK 3dverse -->
+    <script src="https://cdn.3dverse.com/legacy/sdk/latest/SDK3DVerse.js"></script>
+    <script src="https://cdn.3dverse.com/legacy/sdk/latest/SDK3DVerse_ClientDisplay_Ext.js"></script>
+
+    <!-- HANDLERBARS (templating) -->
+    <script src="./js/vendor/handlebars.js"></script>
+
+    <!-- APP ENTRYPOINT -->
+    <script src="./js/initApp.js" type="module"></script>
+  </body>
+</html>
