@@ -101,6 +101,7 @@ declare var SDK3DVerse: {
     maxDimension?: number;
     onStartingStreamer?: () => void;
     onConnectingToEditor?: () => void;
+    hardwareDecoding?: boolean;
   }): Promise<void>;
   joinSession(params: {
     sessionId: string;
@@ -112,6 +113,7 @@ declare var SDK3DVerse: {
     maxDimension?: number;
     onStartingStreamer?: () => void;
     onConnectingToEditor?: () => void;
+    hardwareDecoding?: boolean;
   }): Promise<void>;
   joinOrStartSession(params: {
     sceneUUID: string;
@@ -129,6 +131,7 @@ declare var SDK3DVerse: {
     onFindingSession?: () => void;
     onStartingStreamer?: () => void;
     onConnectingToEditor?: () => void;
+    hardwareDecoding?: boolean;
   }): Promise<void>;
   installExtension<Ext extends SDK3DVerse_ClientDisplay_Ext>(
     ext: Ext,

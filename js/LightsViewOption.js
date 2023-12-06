@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import { subscribeToAssetEditorAPI } from "./utils-3dverse.js";
 
 let lightsOn = true;
@@ -25,7 +25,7 @@ let rearlightAssetDescriptions = [];
 
 export async function setup() {
   // We assume emission intensity will be 0 for lights off and 100 for lights on
-  headlightAssetEditors = config.cars.map((car, i) =>
+  headlightAssetEditors = appConfig.cars.map((car, i) =>
     subscribeToAssetEditorAPI(car.headLightsMatUUID, "material", (desc) => {
       headlightAssetDescriptions[i] = desc;
       lightsOn = (desc.dataJson.emissionIntensity || 0) > 0;
@@ -34,7 +34,7 @@ export async function setup() {
   );
   // We can drive the lights UI state based on the headlights only, and assume<
   // the rearlights are in the same state.
-  rearlightAssetEditors = config.cars.map((car, i) =>
+  rearlightAssetEditors = appConfig.cars.map((car, i) =>
     subscribeToAssetEditorAPI(car.rearLightsMatUUID, "material", (desc) => {
       rearlightAssetDescriptions[i] = desc;
     }),
@@ -49,7 +49,7 @@ export function toggleLightsOn() {
 
   // Each car has its own materials for headlights and rearlights, so whenever
   // we toggle this option, we want to update the materials for every car.
-  config.cars.forEach((_, i) => {
+  appConfig.cars.forEach((_, i) => {
     const desc1 = headlightAssetDescriptions[i];
     desc1.dataJson.emissionIntensity = intensity;
     headlightAssetEditors[i].updateAsset(desc1);

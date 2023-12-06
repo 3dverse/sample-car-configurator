@@ -27,7 +27,6 @@ Object.assign(window, {
 async function initApp() {
   // Render all of our UI components in their initial states
   for (const uiComponent of [
-    SceneLoader,
     CarSelection,
     CarPaint,
     Environment,

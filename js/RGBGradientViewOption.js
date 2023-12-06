@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import { subscribeToEntityChanges } from "./utils-3dverse.js";
 
 let rgbGradientOn = false;
@@ -24,8 +24,8 @@ export async function setup() {
   // read its mesh ref and assign it to the RGB platform.
   [platformEntity, gradientPlatformEntity] =
     await SDK3DVerse.engineAPI.findEntitiesByNames(
-      config.platformEntityName,
-      config.gradientPlatformEntityName,
+      appConfig.platformEntityName,
+      appConfig.gradientPlatformEntityName,
     );
   subscribeToEntityChanges(gradientPlatformEntity, () => {
     rgbGradientOn =

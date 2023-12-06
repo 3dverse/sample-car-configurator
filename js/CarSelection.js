@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import { subscribeToEntityChanges } from "./utils-3dverse.js";
 
 let selectedCarIndex = 0;
@@ -13,7 +13,7 @@ const template = Handlebars.compile(
 );
 
 function render() {
-  const selectedCar = config.cars[selectedCarIndex];
+  const selectedCar = appConfig.cars[selectedCarIndex];
   var [firstWord, ...otherWords] = selectedCar.name.split(" ");
   /** @type {HTMLElement} */ (
     document.getElementById("car-heading")
@@ -33,10 +33,10 @@ let carEntity;
 
 export async function setup() {
   [carEntity] = await SDK3DVerse.engineAPI.findEntitiesByNames(
-    config.carSceneRefName,
+    appConfig.carSceneRefName,
   );
   subscribeToEntityChanges(carEntity, () => {
-    selectedCarIndex = config.cars.findIndex(({ sceneUUID }) => {
+    selectedCarIndex = appConfig.cars.findIndex(({ sceneUUID }) => {
       return carEntity.getComponent("scene_ref").value === sceneUUID;
     });
     render();
@@ -44,10 +44,10 @@ export async function setup() {
 }
 
 export function nextCar() {
-  selectedCarIndex = (selectedCarIndex + 1) % config.cars.length;
+  selectedCarIndex = (selectedCarIndex + 1) % appConfig.cars.length;
   render();
 
-  const selectedCar = config.cars[selectedCarIndex];
+  const selectedCar = appConfig.cars[selectedCarIndex];
   carEntity.setComponent("scene_ref", { value: selectedCar.sceneUUID });
   SDK3DVerse.engineAPI.commitChanges();
 }

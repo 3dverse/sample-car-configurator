@@ -1,14 +1,14 @@
 import { getSelectedCarIndex } from "./CarSelection.js";
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import {
   getAssetDescription,
   subscribeToAssetEditorAPI,
 } from "./utils-3dverse.js";
 
 /** @type {[number, number, number]} */
-let selectedColor = config.colorChoices[0];
-/** @type {(typeof config.materials)[number] | null} */
-let selectedMaterial = config.materials[0];
+let selectedColor = appConfig.colorChoices[0];
+/** @type {(typeof appConfig.materials)[number] | null} */
+let selectedMaterial = appConfig.materials[0];
 
 const colorsTemplate = Handlebars.compile(
   /** @type {HTMLElement} */ (
@@ -16,7 +16,7 @@ const colorsTemplate = Handlebars.compile(
   ).innerHTML,
 );
 
-const cssToSdkColorChoicesMap = config.colorChoices.reduce(
+const cssToSdkColorChoicesMap = appConfig.colorChoices.reduce(
   (colorsMap, sdkColor) => {
     const cssColorString = `rgb(${sdkColor
       .map((value) => Math.round(value * 255))
@@ -56,7 +56,7 @@ function renderMaterials() {
         "active-material",
         Boolean(
           selectedMaterial &&
-            config.materials.indexOf(selectedMaterial) === i,
+            appConfig.materials.indexOf(selectedMaterial) === i,
         ),
       );
     });
@@ -78,7 +78,7 @@ let paintAssetDescriptions = [];
 export async function setup() {
   // The source assets aren't expected to change so we fetch them once
   await Promise.all(
-    config.materials.map(async ({ matUUID }, i) => {
+    appConfig.materials.map(async ({ matUUID }, i) => {
       sourceAssetDescriptions[i] = await getAssetDescription(
         "materials",
         matUUID,
@@ -89,12 +89,12 @@ export async function setup() {
   // Each car has its own paint material which gets updated by copying the
   // source asset descriptions. The current state of the color and material
   // selections is based on the paint asset description.
-  paintAssetEditors = config.cars.map((car, i) =>
+  paintAssetEditors = appConfig.cars.map((car, i) =>
     subscribeToAssetEditorAPI(car.paintMaterialUUID, "material", (desc) => {
       paintAssetDescriptions[i] = desc;
 
       const carPaintDataJson = desc.dataJson;
-      selectedColor = config.colorChoices.find((color) => {
+      selectedColor = appConfig.colorChoices.find((color) => {
         return (
           // albedo might be empty, defaults to 1,1,1,
           // although if our scene is properly configured
@@ -108,7 +108,7 @@ export async function setup() {
         carPaintDataJson.albedo || [1, 1, 1];
 
       selectedMaterial =
-        config.materials.find((_, i) => {
+        appConfig.materials.find((_, i) => {
           const sourceMaterialDataJson = sourceAssetDescriptions[i].dataJson;
           const { clearCoatRoughness, clearCoatStrength } = carPaintDataJson;
           return (
@@ -125,7 +125,7 @@ export async function setup() {
 
 function applySelectedMaterial() {
   const desc = selectedMaterial
-    ? sourceAssetDescriptions[config.materials.indexOf(selectedMaterial)]
+    ? sourceAssetDescriptions[appConfig.materials.indexOf(selectedMaterial)]
     : // If we can't identify which of the model materials was used to
       // create the current paint material, just copy the description from
       // the car paint. This allows users to modify materials in the
@@ -134,7 +134,7 @@ function applySelectedMaterial() {
       paintAssetDescriptions[getSelectedCarIndex()];
 
   desc.dataJson.albedo = selectedColor;
-  config.cars.forEach((_, i) => {
+  appConfig.cars.forEach((_, i) => {
     paintAssetEditors[i].updateAsset(desc);
   });
 }
@@ -153,7 +153,7 @@ export function changeSelectedColor(cssColor) {
 
 /** @param {number} materialIndex */
 export function changeSelectedMaterial(materialIndex) {
-  selectedMaterial = config.materials[materialIndex];
+  selectedMaterial = appConfig.materials[materialIndex];
   renderMaterials();
 
   applySelectedMaterial();

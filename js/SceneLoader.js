@@ -1,28 +1,9 @@
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import {
   setCameraSettings,
   changeCameraPosition,
   showClientAvatars,
 } from "./utils-3dverse.js";
-
-/**
- * @param {object} params
- * @param {string} params.sceneLoadingState
- * @param {boolean} params.isSceneLoaded
- */
-function render({ sceneLoadingState, isSceneLoaded }) {
-  const loader = /** @type {HTMLElement} */ (
-    document.getElementById("scene-loader")
-  );
-  loader.classList.toggle("fadeout", isSceneLoaded);
-
-  /** @type {HTMLElement} */ (document.getElementById("info-span")).innerHTML =
-    sceneLoadingState;
-}
-
-export function initUI() {
-  render({ sceneLoadingState: "Loading...", isSceneLoaded: false });
-}
 
 /**
  * This sets up the canvas display, gets connected with 3dverse,
@@ -34,35 +15,16 @@ export function initUI() {
  */
 export async function setupLivelinkConnection() {
   await SDK3DVerse.joinOrStartSession({
-    sceneUUID: config.sceneUUID,
-    userToken: config.publicUserToken,
+    sceneUUID: appConfig.sceneUUID,
+    userToken: appConfig.publicUserToken,
     canvas: /** @type {HTMLCanvasElement} */ (
       document.getElementById("display-canvas")
     ),
     isTransient: true,
-    connectToEditor: true,
     viewportProperties: {
       defaultControllerType: SDK3DVerse.controller_type.orbit,
     },
     maxDimension: 1920,
-    onFindingSession() {
-      render({
-        sceneLoadingState: "Connecting to 3dverse...",
-        isSceneLoaded: false,
-      });
-    },
-    onStartingStreamer() {
-      render({
-        sceneLoadingState: "Starting streamer...",
-        isSceneLoaded: false,
-      });
-    },
-    onConnectingToEditor() {
-      render({
-        sceneLoadingState: "Connecting to editor...",
-        isSceneLoaded: false,
-      });
-    },
   });
 
   const mediaQuery = window.matchMedia("(max-width: 890px)");
@@ -74,11 +36,6 @@ export async function setupLivelinkConnection() {
     bloom: true,
     bloomStrength: 1,
     bloomThreshold: 50,
-  });
-
-  render({
-    sceneLoadingState: "Loading complete.",
-    isSceneLoaded: true,
   });
 
   await showClientAvatars();

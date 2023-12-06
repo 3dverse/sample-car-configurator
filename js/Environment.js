@@ -1,7 +1,7 @@
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import { subscribeToEntityChanges } from "./utils-3dverse.js";
 
-/** @typedef {(typeof config)['cubemaps'][number]} Cubemap */
+/** @typedef {(typeof appConfig)['cubemaps'][number]} Cubemap */
 
 const template = Handlebars.compile(
   /** @type {HTMLElement} */ (
@@ -13,7 +13,7 @@ function initialRender() {
   /** @type {HTMLElement} */ (
     document.getElementById("cubemap-selection")
   ).innerHTML = template({
-    cubemaps: config.cubemaps.map((cubemap) => ({
+    cubemaps: appConfig.cubemaps.map((cubemap) => ({
       displayName: cubemap.name,
       previewSrc: cubemap.previewSrc,
     })),
@@ -31,7 +31,7 @@ function updateRender({ selectedCubemap }) {
       cubemap.classList.toggle(
         "active-cubemap",
         Boolean(
-          selectedCubemap && config.cubemaps.indexOf(selectedCubemap) === i,
+          selectedCubemap && appConfig.cubemaps.indexOf(selectedCubemap) === i,
         ),
       );
     });
@@ -39,7 +39,7 @@ function updateRender({ selectedCubemap }) {
 
 export function initUI() {
   initialRender();
-  updateRender({ selectedCubemap: config.cubemaps[0] });
+  updateRender({ selectedCubemap: appConfig.cubemaps[0] });
 }
 
 /** @type {Entity} */
@@ -47,11 +47,11 @@ let environmentEntity;
 
 export async function setup() {
   [environmentEntity] = await SDK3DVerse.engineAPI.findEntitiesByNames(
-    config.environmentEntityName,
+    appConfig.environmentEntityName,
   );
   subscribeToEntityChanges(environmentEntity, () => {
     updateRender({
-      selectedCubemap: config.cubemaps.find(({ skyboxUUID }) => {
+      selectedCubemap: appConfig.cubemaps.find(({ skyboxUUID }) => {
         return (
           environmentEntity.getComponent("environment").skyboxUUID ===
           skyboxUUID
@@ -63,10 +63,10 @@ export async function setup() {
 
 /** @param {number} cubemapIndex */
 export function changeCubemap(cubemapIndex) {
-  updateRender({ selectedCubemap: config.cubemaps[cubemapIndex] });
+  updateRender({ selectedCubemap: appConfig.cubemaps[cubemapIndex] });
 
   const { skyboxUUID, radianceUUID, irradianceUUID } =
-    config.cubemaps[cubemapIndex];
+    appConfig.cubemaps[cubemapIndex];
   environmentEntity.setComponent("environment", {
     skyboxUUID,
     radianceUUID,

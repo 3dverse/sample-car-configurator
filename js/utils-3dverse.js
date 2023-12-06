@@ -1,5 +1,5 @@
 import AssetEditorAPI from "./AssetEditorAPI.js";
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 
 /**
  * @param {[number, number, number]} destinationPosition
@@ -13,12 +13,7 @@ export function changeCameraPosition(
   const viewport =
     cameraAPI.currentViewportEnabled || cameraAPI.getActiveViewports()[0];
 
-  cameraAPI.travel(
-    viewport,
-    destinationPosition,
-    destinationOrientation,
-    10,
-  );
+  cameraAPI.travel(viewport, destinationPosition, destinationOrientation, 10);
 }
 
 function getCamera() {
@@ -52,7 +47,7 @@ export async function getAssetDescription(assetType, assetUUID) {
     `${SDK3DVerse.webAPI.apiURL}/assets/${assetType}/${assetUUID}/description`,
     {
       headers: {
-        User_token: config.publicUserToken || "",
+        User_token: appConfig.publicUserToken || "",
       },
     },
   );
@@ -71,7 +66,7 @@ export async function getAssetDescription(assetType, assetUUID) {
  */
 export function subscribeToAssetEditorAPI(assetUUID, assetType, callback) {
   const api = new AssetEditorAPI(
-    config.publicUserToken,
+    appConfig.publicUserToken,
     /**
      * @param {string} event
      * @param {AssetDescription} desc

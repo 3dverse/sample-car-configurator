@@ -15,14 +15,8 @@
         oncontextmenu="event.preventDefault()"
       ></canvas>
 
-      <!-- SCENE LOADER -->
-      <div id="scene-loader" class="scene-loader">
-        <div class="loading-spinner" role="status"></div>
-        <div id="info-span" class="info-span">Loading...</div>
-      </div>
-
       <!-- TIMEOUT OVERLAY -->
-      <div id="timeout-overlay" class="timeout-overlay">
+      <div id="timeout-overlay" class="timeout-overlay hidden">
         <div class="inactive-message">
           <h2>Are you still there?</h2>
           <button onclick="TimeoutOverlay.stayConnected()">Yes</button>
