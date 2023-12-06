@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import {
   setCameraSettings,
   changeCameraPosition,
@@ -34,8 +34,8 @@ export function initUI() {
  */
 export async function setupLivelinkConnection() {
   await SDK3DVerse.joinOrStartSession({
-    sceneUUID: config.sceneUUID,
-    userToken: config.publicUserToken,
+    sceneUUID: appConfig.sceneUUID,
+    userToken: appConfig.publicUserToken,
     canvas: /** @type {HTMLCanvasElement} */ (
       document.getElementById("display-canvas")
     ),

@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { appConfig } from "./appConfig.js";
 import { subscribeToEntityChanges } from "./utils-3dverse.js";
 
 let rotationOn = false;
@@ -27,7 +27,7 @@ export async function setup() {
   // able to be queried from 3dverse otherwise.
   [isAnimationActiveTokenEntity] =
     await SDK3DVerse.engineAPI.findEntitiesByNames(
-      config.isAnimationActiveTokenEntityName,
+      appConfig.isAnimationActiveTokenEntityName,
     );
   subscribeToEntityChanges(isAnimationActiveTokenEntity, () => {
     rotationOn = isAnimationActiveTokenEntity
@@ -43,11 +43,11 @@ export function toggleRotationOn() {
 
   if (rotationOn) {
     SDK3DVerse.engineAPI.playAnimationSequence(
-      config.rotationAnimationSequenceUUID,
+      appConfig.rotationAnimationSequenceUUID,
     );
   } else {
     SDK3DVerse.engineAPI.pauseAnimationSequence(
-      config.rotationAnimationSequenceUUID,
+      appConfig.rotationAnimationSequenceUUID,
     );
   }
 
